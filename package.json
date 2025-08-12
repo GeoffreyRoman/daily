@@ -1,0 +1,24 @@
+{
+  "name": "daily-journal",
+  "version": "1.0.0",
+  "description": "Journal quotidien avec IA et géolocalisation",
+  "scripts": {
+    "install-deps": "./install-deps.sh",
+    "dev": "./start.sh",
+    "build": "./build.sh",
+    "prod": "./prod.sh",
+    "start": "./start-prod.sh",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:build": "cd backend && npm run build",
+    "backend:start": "cd backend && npm start",
+    "frontend:dev": "cd frontend && ng serve",
+    "frontend:build": "cd frontend && ng build",
+    "frontend:serve": "cd frontend && serve -s dist/frontend -l 4200"
+  },
+  "keywords": ["journal", "ai", "angular", "nodejs", "mistral"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
