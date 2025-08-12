@@ -33,19 +33,6 @@ log "Construction du frontend..."
 cd frontend
 npm install
 npm run build
-cd ..
-
-# Préparation des Netlify Functions
-log "Préparation des Netlify Functions..."
-cd netlify
-npm install
-
-# Création du dossier functions si inexistant
-mkdir -p functions
-
-# Copie des sources du backend vers les functions
-cp -r ../backend/src/* functions/ 2>/dev/null || true
-cp -r ../backend/dist/* functions/ 2>/dev/null || true
 
 cd ..
 
