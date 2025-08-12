@@ -1,0 +1,285 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex justify-between items-start">
+        <div>
+          <button (click)="goBack()"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+              fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clip-rule="evenodd" />
+            </svg>
+            Retour au calendrier
+          </button>
+
+          <h1 class="mt-4 text-3xl font-bold text-gray-900">Recherche dans votre journal</h1>
+          <p class="mt-2 text-gray-600">Trouvez vos souvenirs par mots-clés, dates ou localisation</p>
+        </div>
+
+        <button (click)="goToSummary()"
+          class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+          Résumé IA
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <div class="space-y-6">
+        <!-- Basic Search -->
+        <div>
+          <label for="keyword" class="block text-sm font-medium text-gray-700">
+            Rechercher dans le contenu
+          </label>
+          <div class="mt-1 flex rounded-md shadow-sm">
+            <input id="keyword" type="text" [(ngModel)]="keyword" (keyup.enter)="searchEntries()"
+              class="flex-1 block w-full rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Tapez vos mots-clés...">
+            <button (click)="searchEntries()" [disabled]="loading"
+              class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 bg-gray-50 text-sm font-medium text-gray-700 rounded-r-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
+              @if (loading) {
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              }
+              @if (!loading) {
+              <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                  clip-rule="evenodd" />
+              </svg>
+              }
+              {{ loading ? 'Recherche...' : 'Rechercher' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Advanced Search Toggle -->
+        <div>
+          <button (click)="showAdvanced = !showAdvanced"
+            class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
+            {{ showAdvanced ? 'Masquer' : 'Afficher' }} la recherche avancée
+          </button>
+        </div>
+
+        <!-- Advanced Search -->
+        @if (showAdvanced) {
+        <div class="space-y-4 border-t border-gray-200 pt-4">
+          <!-- Date Range -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label for="startDate" class="block text-sm font-medium text-gray-700">
+                Date de début
+              </label>
+              <input id="startDate" type="date" [(ngModel)]="startDate"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div>
+              <label for="endDate" class="block text-sm font-medium text-gray-700">
+                Date de fin
+              </label>
+              <input id="endDate" type="date" [(ngModel)]="endDate"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+          </div>
+          <!-- Geographic Search -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-medium text-gray-700">Recherche géographique</h3>
+              <button (click)="toggleMap()" type="button"
+                class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"
+                    clip-rule="evenodd" />
+                </svg>
+                {{ showMap ? 'Masquer' : 'Afficher' }} la carte
+              </button>
+            </div>
+
+            <div class="flex space-x-4 items-end">
+              <button (click)="getCurrentLocation()"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                  fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                    clip-rule="evenodd" />
+                </svg>
+                Me localiser
+              </button>
+
+              <div class="flex-1">
+                <label for="radius" class="block text-sm font-medium text-gray-700">
+                  Rayon de recherche
+                </label>
+                <select id="radius" [(ngModel)]="radius" (change)="onRadiusChange()"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  @for (option of radiusOptions; track option) {
+                  <option [value]="option">{{ option }} km</option>
+                  }
+                </select>
+              </div>
+
+              @if (latitude && longitude) {
+              <button (click)="clearMapSelection()" type="button"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                  fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+                </svg>
+                Effacer
+              </button>
+              }
+            </div>
+
+            @if (latitude && longitude) {
+            <div class="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
+              <div class="flex items-center">
+                <svg class="w-4 h-4 mr-2 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                  fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                    clip-rule="evenodd" />
+                </svg>
+                <strong>Zone de recherche sélectionnée</strong>
+              </div>
+              <div class="mt-1 ml-6">
+                Position: {{ latitude.toFixed(6) }}, {{ longitude.toFixed(6) }}<br>
+                Rayon: {{ radius }} km
+              </div>
+            </div>
+            }
+
+            <!-- Carte interactive -->
+            @if (showMap) {
+            <div class="border border-gray-300 rounded-lg overflow-hidden map-transition">
+              <div class="bg-gray-50 px-4 py-2 border-b border-gray-300">
+                <p class="text-sm text-gray-600">
+                  <svg class="w-4 h-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  Cliquez sur la carte pour définir votre zone de recherche. Ajustez le rayon avec le sélecteur
+                  ci-dessus.
+                </p>
+              </div>
+              <div class="map-container">
+                <div id="map-container" style="height: 400px; width: 100%; position: relative; z-index: 1;"></div>
+              </div>
+            </div>
+            }
+          </div>
+          <!-- Clear Button -->
+          <div>
+            <button (click)="clearSearch()"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+              Effacer la recherche
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">
+          Résultats ({{ results.length }})
+        </h2>
+      </div>
+
+      @if (loading) {
+      <div class="text-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+        <p class="mt-2 text-gray-600">Recherche en cours...</p>
+      </div>
+      }
+
+      @if (!loading && results.length === 0) {
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun résultat</h3>
+        <p class="mt-1 text-sm text-gray-500">Essayez de modifier vos critères de recherche.</p>
+      </div>
+      }
+
+      @if (!loading && results.length > 0) {
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        @for (entry of results; track entry) {
+        <div (click)="goToEntry(entry)"
+          class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-md transition-shadow duration-200">
+          <!-- Date -->
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-medium text-gray-900">
+              {{ formatDate(entry.date) }}
+            </h3>
+            <div class="flex space-x-1">
+              <!-- AI indicator -->
+              @if (entry.ai_generated) {
+              <span
+                class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                <svg class="w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                IA
+              </span>
+              }
+              <!-- Location indicator -->
+              @if (entry.location_name) {
+              <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                <svg class="w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                    clip-rule="evenodd" />
+                </svg>
+                Lieu
+              </span>
+              }
+            </div>
+          </div>
+          <!-- Content preview -->
+          <p class="text-gray-600 text-sm mb-3">
+            {{ truncateContent(entry.content) }}
+          </p>
+          <!-- Location -->
+          @if (entry.location_name) {
+          <div class="text-xs text-gray-500 flex items-center">
+            <svg class="w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                clip-rule="evenodd" />
+            </svg>
+            {{ entry.location_name }}
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>

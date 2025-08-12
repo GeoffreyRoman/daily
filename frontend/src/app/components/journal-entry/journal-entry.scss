@@ -1,0 +1,52 @@
+// Import des styles Leaflet
+@import 'leaflet/dist/leaflet.css';
+
+// Styles pour la carte
+.leaflet-container {
+    font-family: inherit;
+}
+
+// Fix pour les icônes Leaflet
+.leaflet-default-icon-path {
+    background-image: none;
+}
+
+// Style pour le conteneur de carte
+#mapContainer,
+[data-cy="map-container"] {
+    min-height: 256px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+// Styles pour la modale plein écran
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.fullscreen-image {
+    max-width: 90vw;
+    max-height: 90vh;
+    box-shadow: 0 0 20px #000;
+}
+
+.close-btn {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    z-index: 1001;
+}
