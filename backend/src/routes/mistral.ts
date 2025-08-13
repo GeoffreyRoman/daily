@@ -34,11 +34,11 @@ router.post('/generate', authenticateToken, async (req: AuthRequest, res: Respon
             });
 
             // Construire le prompt système pour le journal
-            let systemPrompt = `Tu es un assistant qui aide à rédiger des entrées de journal personnel. 
+   let systemPrompt = `Tu es un assistant qui aide à rédiger des entrées de journal personnel. 
 Tu dois créer un texte authentique et personnel basé sur le prompt de l'utilisateur. 
 Le texte doit être écrit à la première personne, comme si c'était l'utilisateur qui écrivait.
-Garde un ton naturel et personnel, évite d'être trop formel.
-Limite ta réponse à environ 200-300 mots.`;
+Garde un ton naturel et personnel, évite d'être trop formel. La réponse doit être bref, concentre toi sur ce que le prompt dit, et n'ajoute de details qui ne t'ont pas été donné.`;
+
 
             if (context) {
                 systemPrompt += `\n\nContexte supplémentaire: ${context}`;
