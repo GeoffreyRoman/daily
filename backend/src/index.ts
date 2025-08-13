@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares de sécurité
 app.use(helmet());
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://daily-nzwy.onrender.com' : 'https://daily-nzwy.onrender.com',
+    origin: process.env.NODE_ENV === 'production' ? 'https://daily-note-cs.onrender.com' : 'https://daily-note-cs.onrender.com',
     credentials: true
 }));
 
