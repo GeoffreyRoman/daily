@@ -42,11 +42,8 @@ export class Calendar implements OnInit {
 
   loadEntries() {
     this.loading = true;
-    console.log('IN');
-
     this.journalService.getAllEntries().subscribe({
       next: (entries) => {
-        console.log('entries', entries);
 
         this.entries = entries;
 
@@ -56,8 +53,6 @@ export class Calendar implements OnInit {
         this.cdr.markForCheck();
       },
       error: (error) => {
-        console.log('error', error);
-
         console.error('Erreur lors du chargement des entrées:', error);
         this.loading = false;
         this.cdr.markForCheck();
@@ -80,24 +75,15 @@ export class Calendar implements OnInit {
 
     // Dernier dimanche de la grille du calendrier
     const endDate = new Date(lastDay);
-    console.log('endDate', endDate);
-
     endDate.setDate(endDate.getDate() + (6 - ((lastDay.getDay() + 6) % 7)));
 
     this.calendarDays = [];
     const currentDate = new Date(startDate);
-
-    console.log(this.entries);
-
     while (currentDate <= endDate) {
       const dateString = currentDate.toLocaleDateString('en-CA');
       const entry = this.entries.find(e => {
-        console.log('loop: ', e.date, new Date(e.date), this.formatDate(new Date(e.date)));
-        console.log('value: ', this.formatDate(new Date(e.date)) === dateString)
         return this.formatDate(new Date(e.date)) === dateString;
       });
-      console.log('entry', dateString, entry);
-      console.log('currentDate', currentDate, new Date(currentDate), dateString);
 
       this.calendarDays.push({
         date: new Date(currentDate),
