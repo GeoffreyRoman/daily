@@ -1,48 +1,32 @@
-<div class="min-h-screen bg-gray-50">
-  <!-- Header -->
-  <header class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col space-y-4 py-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0 sm:py-6">
-        <div class="flex-1">
-          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Mon Journal Quotidien</h1>
-          <p class="text-sm sm:text-base text-gray-600 mt-1">Capturez vos pensées et souvenirs chaque jour</p>
-        </div>
-        <div class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
-          <button (click)="goToSummary()"
-            class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-md text-sm font-medium text-center">
-            Résumé
-          </button>
-          <button (click)="goToSearch()"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-medium text-center">
-            Rechercher
-          </button>
-          <button (click)="logout()"
-            class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium text-center">
-            Déconnexion
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+<div class="space-y-8 fade-in">
+  <section class="space-y-2">
+    <h1 class="text-3xl font-semibold tracking-tight flex items-center gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-white font-bold">📅</span>
+      Calendrier Mensuel
+    </h1>
+    <p class="text-sm text-neutral-600 max-w-prose">Visualisez vos entrées quotidiennes, suivez votre progression et
+      accédez rapidement à chaque jour.</p>
+  </section>
 
-  <!-- Calendar -->
-  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="px-4 py-6 sm:px-0">
-      <div class="bg-white rounded-lg shadow">
+  <div class="grid lg:grid-cols-3 gap-6 items-start">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="glass-card overflow-hidden">
         <!-- Calendar Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <button (click)="previousMonth()" class="month-nav-button p-2 rounded-md hover:bg-gray-100">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-200">
+          <button (click)="previousMonth()" class="icon-btn" aria-label="Mois précédent">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
               </path>
             </svg>
           </button>
 
-          <h2 class="text-xl font-semibold text-gray-900 capitalize">
+          <h2 class="text-lg sm:text-xl font-semibold capitalize tracking-wide flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full bg-brand-50 text-brand-600 text-xs font-medium">{{
+              getMonthlyStats().completionRate }}% complété</span>
             {{ getCurrentMonthYear() }}
           </h2>
 
-          <button (click)="nextMonth()" class="month-nav-button p-2 rounded-md hover:bg-gray-100">
+          <button (click)="nextMonth()" class="icon-btn" aria-label="Mois suivant">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
               </path>
@@ -51,7 +35,7 @@
         </div>
 
         <!-- Days of week -->
-        <div class="grid grid-cols-7 gap-px bg-gray-200">
+        <div class="grid grid-cols-7 gap-px bg-neutral-200">
           <div class="bg-gray-50 py-2 text-center text-xs font-semibold text-gray-700 uppercase tracking-wide">
             Lun</div>
           <div class="bg-gray-50 py-2 text-center text-xs font-semibold text-gray-700 uppercase tracking-wide">
@@ -69,10 +53,10 @@
         </div>
 
         <!-- Calendar Grid -->
-        <div class="grid grid-cols-7 gap-px bg-gray-200">
+        <div class="grid grid-cols-7 gap-px bg-neutral-200">
           @for (day of calendarDays; track day) {
           <div (click)="onDayClick(day)"
-            [class]="'calendar-day p-2 h-24 cursor-pointer relative ' + 
+            [class]="'calendar-day p-2 h-24 cursor-pointer relative transition-colors ' + 
                          (!day.isCurrentMonth ? 'other-month text-gray-400 bg-gray-50' : 
                           day.hasEntry ? 'bg-green-50 hover:bg-green-100' : 'bg-white hover:bg-gray-50') +
                          (isToday(day.date) ? ' today ring-2 ring-indigo-500' : '') +
@@ -120,7 +104,7 @@
         </div>
 
         <!-- Monthly Statistics -->
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div class="px-6 py-4 bg-neutral-50 border-t border-neutral-200">
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-600">
               Progression du mois : {{ getMonthlyStats().completedDays }} / {{ getMonthlyStats().totalDays }} jours
@@ -140,9 +124,8 @@
           </div>
         </div>
       </div>
-
       <!-- Legend -->
-      <div class="mt-6 bg-white rounded-lg shadow p-4">
+      <div class="glass-card p-4 mt-6">
         <h3 class="text-sm font-medium text-gray-900 mb-3">Légende du calendrier</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
           <div class="flex items-center legend-box p-2 rounded-md">
@@ -180,7 +163,35 @@
         </div>
       </div>
     </div>
-  </main>
+    <aside class="space-y-6">
+      <div class="glass-card p-5 space-y-4">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-neutral-500">Statistiques rapides</h3>
+        <ul class="text-sm space-y-2">
+          <li class="flex justify-between"><span>Jours totaux</span><span class="font-medium">{{
+              getMonthlyStats().totalDays }}</span></li>
+          <li class="flex justify-between"><span>Complétés</span><span class="font-medium text-green-600">{{
+              getMonthlyStats().completedDays }}</span></li>
+          <li class="flex justify-between"><span>Vides</span><span class="font-medium text-amber-600">{{
+              getMonthlyStats().emptyDays }}</span></li>
+        </ul>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span>Progression</span><span>{{
+              getMonthlyStats().completionRate }}%</span></div>
+          <div class="h-2 rounded-full bg-neutral-200 overflow-hidden">
+            <div class="h-full bg-brand-500 transition-all" [style.width.%]="getMonthlyStats().completionRate"></div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card p-5 space-y-3">
+        <h3 class="font-medium">Actions rapides</h3>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <button class="btn-secondary w-full" (click)="previousMonth()">Mois -</button>
+          <button class="btn-secondary w-full" (click)="nextMonth()">Mois +</button>
+          <button class="btn-primary col-span-2" (click)="goToSummary()">Résumé IA</button>
+        </div>
+      </div>
+    </aside>
+  </div>
 
   <!-- Loading -->
   @if (loading) {

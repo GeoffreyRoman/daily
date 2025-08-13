@@ -1,36 +1,27 @@
-<div class="min-h-screen bg-gray-50 py-8">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Header -->
-    <div class="mb-8">
-      <div class="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-start sm:space-y-0">
-        <div class="flex-1">
-          <button (click)="goBack()"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-              fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clip-rule="evenodd" />
-            </svg>
-            Retour au calendrier
-          </button>
-
-          <h1 class="mt-4 text-2xl sm:text-3xl font-bold text-gray-900">Recherche dans votre journal</h1>
-          <p class="mt-2 text-sm sm:text-base text-gray-600">Trouvez vos souvenirs par mots-clés, dates ou localisation
-          </p>
+<div class="space-y-8 fade-in">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div class="flex items-center gap-3 flex-1 min-w-0">
+        <button (click)="goBack()" class="icon-btn" aria-label="Retour calendrier">
+          <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+              clip-rule="evenodd" />
+          </svg>
+          <span class="hidden sm:inline">Calendrier</span>
+        </button>
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight">Recherche</h1>
+          <p class="text-sm text-neutral-600">Trouvez vos souvenirs par mots-clés, dates ou localisation.</p>
         </div>
-
-        <div class="flex-shrink-0 mt-4 sm:mt-0">
-          <button (click)="goToSummary()"
-            class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium text-center">
-            Résumé IA
-          </button>
-        </div>
+      </div>
+      <div class="flex gap-2">
+        <button (click)="goToSummary()" class="btn-primary">Résumé IA</button>
       </div>
     </div>
 
     <!-- Search Form -->
-    <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <div class="glass-card p-6 mb-8">
       <div class="space-y-6">
         <!-- Basic Search -->
         <div>
@@ -75,7 +66,7 @@
 
         <!-- Advanced Search -->
         @if (showAdvanced) {
-        <div class="space-y-4 border-t border-gray-200 pt-4">
+        <div class="space-y-4 border-t border-neutral-200 pt-4">
           <!-- Date Range -->
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
@@ -108,7 +99,7 @@
               </button>
             </div>
 
-            <div class="flex space-x-4 items-end">
+            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 items-start sm:items-end">
               <button (click)="getCurrentLocation()"
                 class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
@@ -166,7 +157,7 @@
 
             <!-- Carte interactive -->
             @if (showMap) {
-            <div class="border border-gray-300 rounded-lg overflow-hidden map-transition">
+            <div class="border border-neutral-300 rounded-lg overflow-hidden map-transition">
               <div class="bg-gray-50 px-4 py-2 border-b border-gray-300">
                 <p class="text-sm text-gray-600">
                   <svg class="w-4 h-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
@@ -233,8 +224,7 @@
       @if (!loading && results.length > 0) {
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         @for (entry of results; track entry) {
-        <div (click)="goToEntry(entry)"
-          class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-md transition-shadow duration-200">
+        <div (click)="goToEntry(entry)" class="glass-card p-6 cursor-pointer transition duration-200">
           <!-- Date -->
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-lg font-medium text-gray-900">

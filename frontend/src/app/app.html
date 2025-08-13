@@ -1,1 +1,73 @@
-<router-outlet />
+<div class="app-shell" [class.theme-transition]="true">
+    <!-- Header global (masqué sur la page login) -->
+    @if (!isAuthRoute()) {
+    <header class="app-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="flex items-center gap-2 font-semibold text-lg tracking-tight">
+                    <span
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white shadow-soft font-bold">DJ</span>
+                    <span class="hidden sm:block">Daily Journal</span>
+                </div>
+                <!-- Barre de recherche rapide -->
+                <div class="hidden md:flex items-center ml-6 flex-1 w-full relative">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-900" fill="none"
+                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35" />
+                    </svg>
+                    <input type="text" size="80" placeholder="Recherche rapide (Entrée)"
+                        (keyup.enter)="quickSearch($event)"
+                        class="w-full pl-11 pr-4 py-2 text-sm rounded-lg border border-neutral-300 bg-white/70 backdrop-blur focus:border-brand-500 focus:ring-2 focus:ring-brand-500/40 outline-none transition shadow-sm" />
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-2">
+                <button (click)="go('/calendar')" [class.hidden]="activePath() === '/calendar'"
+                    class="btn-ghost">Calendrier</button>
+                <button (click)="go('/search')" [class.hidden]="activePath() === '/search'"
+                    class="btn-ghost">Recherche</button>
+                <button (click)="go('/summary')" [class.hidden]="activePath() === '/summary'"
+                    class="btn-ghost">Résumé</button>
+                <div class="relative" (mouseleave)="closeUserMenu()">
+                    <button class="icon-btn" (click)="toggleUserMenu()" aria-label="Menu utilisateur">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    @if (userMenu()) {
+                    <div class="absolute right-0 mt-2 w-48 glass-card p-2 animate-scale-in">
+                        <div class="px-3 py-2 text-xs uppercase tracking-wide text-neutral-500">Compte</div>
+                        <button class="w-full text-left btn-ghost justify-start px-3"
+                            (click)="logout()">Déconnexion</button>
+                    </div>
+                    }
+                </div>
+            </nav>
+        </div>
+    </header>
+    }
+
+    <!-- Contenu principal -->
+    @if (!isAuthRoute()) {
+    <main class="flex-1 pt-4 pb-10 bg-neutral-50">
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <router-outlet />
+        </div>
+    </main>
+    } @else {
+    <main class="flex-1 pt-4 pb-10">
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <router-outlet />
+        </div>
+    </main>
+    }
+
+    <!-- Footer minimal -->
+    @if (!isAuthRoute()) {
+    <footer class="py-6 text-center text-xs text-neutral-500">
+        © {{ currentYear }} Daily Journal — Vos souvenirs, enrichis par l'IA.
+    </footer>
+    }
+</div>
