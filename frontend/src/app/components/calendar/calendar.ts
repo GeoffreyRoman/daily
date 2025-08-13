@@ -93,6 +93,7 @@ export class Calendar implements OnInit {
       const dateString = this.formatDate(currentDate);
       const entry = this.entries.find(e => {
         console.log('loop: ', e.date, new Date(e.date), this.formatDate(new Date(e.date)));
+        console.log('value: ', this.formatDate(new Date(e.date)) === dateString)
         return this.formatDate(new Date(e.date)) === dateString;
       });
       console.log('entry', dateString, entry);
