@@ -90,7 +90,7 @@ export class Calendar implements OnInit {
     console.log(this.entries);
 
     while (currentDate <= endDate) {
-      const dateString = this.formatDate(currentDate);
+      const dateString = currentDate.toLocaleDateString('en-CA');
       const entry = this.entries.find(e => {
         console.log('loop: ', e.date, new Date(e.date), this.formatDate(new Date(e.date)));
         console.log('value: ', this.formatDate(new Date(e.date)) === dateString)
