@@ -93,6 +93,7 @@ export class Calendar implements OnInit {
       const dateString = this.formatDate(currentDate);
       const entry = this.entries.find(e => this.formatDate(new Date(e.date)) === dateString);
       console.log('entry', dateString, entry);
+      console.log('currentDate', currentDate, new Date(currentDate), dateString);
 
       this.calendarDays.push({
         date: new Date(currentDate),
