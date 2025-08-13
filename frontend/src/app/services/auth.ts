@@ -17,7 +17,7 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class Auth {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = 'https://daily-ss.onrender.com/api/auth';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 

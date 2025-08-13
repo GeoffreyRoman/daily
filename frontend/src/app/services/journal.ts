@@ -42,7 +42,7 @@ export interface SearchRequest {
   providedIn: 'root'
 })
 export class Journal {
-  private apiUrl = 'http://localhost:3000/api/journal';
+  private apiUrl = 'https://daily-ss.onrender.com/api/journal';
 
   constructor(private http: HttpClient, private authService: Auth) { }
 

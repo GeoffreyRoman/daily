@@ -18,7 +18,7 @@ export interface MistralResponse {
   providedIn: 'root'
 })
 export class Mistral {
-  private apiUrl = 'http://localhost:3000/api/mistral';
+  private apiUrl = 'https://daily-ss.onrender.com/api/mistral';
 
   constructor(private http: HttpClient, private authService: Auth) { }
 

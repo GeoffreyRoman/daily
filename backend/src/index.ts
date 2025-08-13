@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares de sécurité
 app.use(helmet());
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:4200',
+    origin: process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'https://daily-ss.onrender.com',
     credentials: true
 }));
 
