@@ -2,8 +2,8 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header -->
     <div class="mb-8">
-      <div class="flex justify-between items-start">
-        <div>
+      <div class="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-start sm:space-y-0">
+        <div class="flex-1">
           <button (click)="goBack()"
             class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
@@ -15,14 +15,17 @@
             Retour au calendrier
           </button>
 
-          <h1 class="mt-4 text-3xl font-bold text-gray-900">Recherche dans votre journal</h1>
-          <p class="mt-2 text-gray-600">Trouvez vos souvenirs par mots-clés, dates ou localisation</p>
+          <h1 class="mt-4 text-2xl sm:text-3xl font-bold text-gray-900">Recherche dans votre journal</h1>
+          <p class="mt-2 text-sm sm:text-base text-gray-600">Trouvez vos souvenirs par mots-clés, dates ou localisation
+          </p>
         </div>
 
-        <button (click)="goToSummary()"
-          class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-          Résumé IA
-        </button>
+        <div class="flex-shrink-0 mt-4 sm:mt-0">
+          <button (click)="goToSummary()"
+            class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium text-center">
+            Résumé IA
+          </button>
+        </div>
       </div>
     </div>
 
