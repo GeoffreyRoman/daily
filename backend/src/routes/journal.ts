@@ -346,6 +346,20 @@ router.get('/images/:filename', (req, res) => {
             return res.status(404).json({ error: 'Image non trouvée' });
         }
 
+        // Déterminer le bon type MIME à partir de l'extension
+        const ext = path.extname(filename).toLowerCase();
+        const mimeMap: Record<string, string> = {
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.jfif': 'image/jpeg',
+            '.pjpeg': 'image/jpeg',
+            '.png': 'image/png',
+            '.gif': 'image/gif',
+            '.webp': 'image/webp'
+        };
+        const contentType = mimeMap[ext] || 'application/octet-stream';
+        res.setHeader('Content-Type', contentType);
+
         res.sendFile(filePath);
     } catch (error) {
         console.error('Erreur lors de la récupération de l\'image:', error);

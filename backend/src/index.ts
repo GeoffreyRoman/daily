@@ -15,10 +15,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middlewares de sécurité
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://daily-note-cs.onrender.com' : 'https://daily-note-cs.onrender.com',
-    credentials: true
+  origin: process.env.NODE_ENV === 'production' ? 'https://daily-note-cs.onrender.com' : 'https://daily-note-cs.onrender.com',
+  credentials: true
 }));
 
 // Servir les fichiers statiques du dossier uploads (images)
@@ -26,8 +28,8 @@ app.use('/uploads', express.static('uploads'));
 
 // Rate limiting
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
 
@@ -40,8 +42,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware de debug pour loguer toutes les requêtes
 app.use((req, res, next) => {
-    console.log(`🔍 ${req.method} ${req.path} - Body:`, req.body);
-    next();
+  console.log(`🔍 ${req.method} ${req.path} - Body:`, req.body);
+  next();
 });
 
 // Routes
@@ -51,24 +53,24 @@ app.use('/api/mistral', mistralRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 // Middleware pour les routes non trouvées
 app.use((req, res) => {
-    console.log(`❌ Route non trouvée: ${req.method} ${req.originalUrl}`);
-    res.status(404).json({ error: 'routess_inconnue' });
+  console.log(`❌ Route non trouvée: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ error: 'routess_inconnue' });
 });
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong!' });
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
 });
 
 export default app;
