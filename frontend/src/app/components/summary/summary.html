@@ -136,9 +136,21 @@
                 <h3 class="text-lg font-medium text-gray-900">
                     Résumé généré par IA
                 </h3>
-                <span class="text-sm text-gray-500">
-                    Période: {{ formatDateString(startDate) }} - {{ formatDateString(endDate) }}
-                </span>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-500 hidden sm:inline">
+                        Période: {{ formatDateString(startDate) }} - {{ formatDateString(endDate) }}
+                    </span>
+                    <button (click)="copySummary()" class="flex items-center gap-2 text-sm px-3 py-1.5 rounded-md border transition-colors duration-150"
+                        [ngClass]="{
+                            'bg-indigo-600 border-indigo-600 text-white': copyState === 'copied',
+                            'bg-red-600 border-red-600 text-white': copyState === 'error',
+                            'bg-white border-gray-300 text-gray-700 hover:bg-gray-50': copyState === 'idle'
+                        }" title="Copier le résumé">
+                        @if (copyState === 'copied') { <span>✔ Copié</span> }
+                        @else if (copyState === 'error') { <span>⚠ Erreur</span> }
+                        @else { <span>📋 Copier</span> }
+                    </button>
+                </div>
             </div>
 
             <div class="prose max-w-none">

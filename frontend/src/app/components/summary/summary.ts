@@ -27,6 +27,7 @@ export class Summary implements OnInit, AfterViewInit {
     summaryHtml: SafeHtml = '';
     isLoading = false;
     error: string = '';
+    copyState: 'idle' | 'copied' | 'error' = 'idle';
 
     // Propriétés pour la carte
     private map!: L.Map;
@@ -35,7 +36,7 @@ export class Summary implements OnInit, AfterViewInit {
 
     constructor(
         private journalService: Journal,
-                private geminiService: GeminiService,
+        private geminiService: GeminiService,
         private authService: Auth,
         private router: Router,
         private sanitizer: DomSanitizer,
@@ -138,6 +139,7 @@ export class Summary implements OnInit, AfterViewInit {
             next: (response) => {
                 this.summary = response.summary;
                 this.summaryHtml = this.convertMarkdownToHtml(response.summary);
+                this.copyState = 'idle';
                 this.isLoading = false;
                 this.cdr.detectChanges();
             },
@@ -171,6 +173,7 @@ export class Summary implements OnInit, AfterViewInit {
             next: (response) => {
                 this.summary = response.generated_content;
                 this.summaryHtml = this.convertMarkdownToHtml(response.generated_content);
+                this.copyState = 'idle';
                 this.isLoading = false;
                 this.cdr.detectChanges();
             },
@@ -241,6 +244,7 @@ Fais une synthèse globale avec thèmes principaux, évolution temporelle et con
             next: (response) => {
                 this.summary = response.generated_content;
                 this.summaryHtml = this.convertMarkdownToHtml(response.generated_content);
+                this.copyState = 'idle';
                 this.isLoading = false;
                 this.cdr.detectChanges();
             },
@@ -249,6 +253,7 @@ Fais une synthèse globale avec thèmes principaux, évolution temporelle et con
                 // En cas d'erreur, utiliser la concaténation simple
                 this.summary = partialSummaries.join('\n\n---\n\n');
                 this.summaryHtml = this.convertMarkdownToHtml(this.summary);
+                this.copyState = 'idle';
                 this.isLoading = false;
                 this.cdr.detectChanges();
             }
@@ -405,5 +410,42 @@ Résumé structuré: thèmes, événements, lieux.`;
         } else if (this.locationPoints.length === 1) {
             this.map.setView([this.locationPoints[0].lat, this.locationPoints[0].lng], 13);
         }
+    }
+
+    copySummary() {
+        if (!this.summary) return;
+        const textToCopy = this.summary;
+        if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    this.copyState = 'copied';
+                    this.cdr.detectChanges();
+                    setTimeout(() => { this.copyState = 'idle'; this.cdr.detectChanges(); }, 2500);
+                })
+                .catch(() => {
+                    this.fallbackCopy(textToCopy);
+                });
+        } else {
+            this.fallbackCopy(textToCopy);
+        }
+    }
+
+    private fallbackCopy(text: string) {
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            this.copyState = 'copied';
+        } catch (e) {
+            console.error('Copie impossible', e);
+            this.copyState = 'error';
+        }
+        this.cdr.detectChanges();
+        setTimeout(() => { this.copyState = 'idle'; this.cdr.detectChanges(); }, 2500);
     }
 }
