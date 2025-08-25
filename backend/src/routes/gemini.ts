@@ -39,7 +39,7 @@ router.post('/generate', authenticateToken, async (req: AuthRequest, res: Respon
 
         try {
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash"});
 
             // Construire le prompt système pour le journal
             let systemPrompt = `Tu es un assistant qui aide à rédiger des entrées de journal personnel. 
@@ -65,7 +65,7 @@ Garde un ton naturel et personnel, évite d'être trop formel. La réponse doit 
             res.json({
                 generated_content: generatedContent,
                 prompt: prompt,
-                model: 'gemini-pro'
+                model: 'gemini-2.0-flash'
             });
 
         } catch (geminiError: any) {
@@ -99,7 +99,7 @@ router.post('/summarize', authenticateToken, async (req: AuthRequest, res: Respo
 
         try {
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash"});
 
             // Formater les entrées pour le contexte
             const formattedEntries = entries.map((entry: any) => {
@@ -146,7 +146,7 @@ Utilise un ton bienveillant et personnel, comme si tu analysais le journal d'un 
                     start: startDate,
                     end: endDate
                 },
-                model: 'gemini-pro'
+                model: 'gemini-2.0-flash'
             });
 
         } catch (geminiError: any) {
