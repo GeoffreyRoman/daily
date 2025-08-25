@@ -343,7 +343,7 @@ router.get('/images/:filename', (req, res) => {
         const filePath = path.join(__dirname, '../../uploads/images', filename);
 
         if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ error: 'Image non trouvée' });
+            return res.status(404).json({ error: 'Image non trouvée: ' +  __dirname + ' | ' +  filePath});
         }
 
         res.sendFile(filePath);
