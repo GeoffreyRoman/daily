@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Journal, JournalEntry } from '../../services/journal';
-import { Mistral, MistralRequest, SummaryRequest } from '../../services/mistral';
+import { GeminiService, GeminiRequest, SummaryRequest } from '../../services/gemini';
 import { Auth } from '../../services/auth';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -35,7 +35,7 @@ export class Summary implements OnInit, AfterViewInit {
 
     constructor(
         private journalService: Journal,
-        private mistralService: Mistral,
+                private geminiService: GeminiService,
         private authService: Auth,
         private router: Router,
         private sanitizer: DomSanitizer,
@@ -134,7 +134,7 @@ export class Summary implements OnInit, AfterViewInit {
 
         console.log(`Génération de résumé simplifié pour ${this.entries.length} entrées`);
 
-        this.mistralService.generateSummary(summaryRequest).subscribe({
+        this.geminiService.generateSummary(summaryRequest).subscribe({
             next: (response) => {
                 this.summary = response.summary;
                 this.summaryHtml = this.convertMarkdownToHtml(response.summary);
@@ -162,12 +162,12 @@ export class Summary implements OnInit, AfterViewInit {
     private generateSummaryWithSingleCall() {
         const optimizedPrompt = this.createOptimizedPrompt(this.entries);
 
-        const request: MistralRequest = {
+        const request: GeminiRequest = {
             prompt: optimizedPrompt,
             context: `Résumé de journal du ${this.startDate} au ${this.endDate}`
         };
 
-        this.mistralService.generateContent(request).subscribe({
+        this.geminiService.generateContent(request).subscribe({
             next: (response) => {
                 this.summary = response.generated_content;
                 this.summaryHtml = this.convertMarkdownToHtml(response.generated_content);
@@ -197,7 +197,7 @@ export class Summary implements OnInit, AfterViewInit {
         // Créer les requêtes pour chaque chunk
         const requests = entryChunks.map((chunk, index) => {
             const prompt = this.createOptimizedPrompt(chunk, true, index + 1, entryChunks.length);
-            return this.mistralService.generateContent({
+            return this.geminiService.generateContent({
                 prompt: prompt,
                 context: `Résumé partiel ${index + 1}/${entryChunks.length}`
             });
@@ -232,12 +232,12 @@ ${combinedContent}
 
 Fais une synthèse globale avec thèmes principaux, évolution temporelle et conclusions.`.substring(0, 950);
 
-        const request: MistralRequest = {
+        const request: GeminiRequest = {
             prompt: finalPrompt,
             context: `Synthèse finale de ${this.entries.length} entrées`
         };
 
-        this.mistralService.generateContent(request).subscribe({
+        this.geminiService.generateContent(request).subscribe({
             next: (response) => {
                 this.summary = response.generated_content;
                 this.summaryHtml = this.convertMarkdownToHtml(response.generated_content);

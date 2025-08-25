@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Mistral } from './mistral';
+import { GeminiService } from './gemini';
 
-describe('Mistral', () => {
-  let service: Mistral;
+describe('GeminiService', () => {
+  let service: GeminiService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Mistral);
+    service = TestBed.inject(GeminiService);
   });
 
   it('should be created', () => {
