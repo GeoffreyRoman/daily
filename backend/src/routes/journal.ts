@@ -81,8 +81,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
                                 'original_name', ei.original_name,
                                 'mime_type', ei.mime_type,
                                 'file_size', ei.file_size,
-                                'image_data', ei.image_data,
-                                'created_at', ei.created_at
+                                'image_data', ei.image_data
                             )
                         ) FILTER (WHERE ei.id IS NOT NULL), 
                         '[]'
@@ -115,8 +114,7 @@ router.get('/date/:date', authenticateToken, async (req: AuthRequest, res: Respo
                                 'original_name', ei.original_name,
                                 'mime_type', ei.mime_type,
                                 'file_size', ei.file_size,
-                                'image_data', ei.image_data,
-                                'created_at', ei.created_at
+                                'image_data', ei.image_data
                             )
                         ) FILTER (WHERE ei.id IS NOT NULL), 
                         '[]'
