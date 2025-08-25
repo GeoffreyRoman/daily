@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Journal, JournalEntry } from '../../services/journal';
-import { Mistral, MistralRequest } from '../../services/mistral';
+import { Mistral, MistralRequest, SummaryRequest } from '../../services/mistral';
 import { Auth } from '../../services/auth';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -116,11 +116,46 @@ export class Summary implements OnInit, AfterViewInit {
         this.error = '';
         this.summary = '';
 
-        // Si nous avons beaucoup d'entrées, utilisons plusieurs appels
-        if (this.entries.length > 5) {
-            this.generateSummaryWithMultipleCalls();
-        } else {
+        // Nouvelle approche simplifiée : tout dans le contexte
+        this.generateSummaryWithNewApproach();
+    }
+
+    private generateSummaryWithNewApproach() {
+        // Préparer les données pour la nouvelle API
+        const summaryRequest: SummaryRequest = {
+            entries: this.entries.map(entry => ({
+                date: entry.date,
+                content: entry.content,
+                location_name: entry.location_name || undefined
+            })),
+            startDate: this.startDate,
+            endDate: this.endDate
+        };
+
+        console.log(`Génération de résumé simplifié pour ${this.entries.length} entrées`);
+
+        this.mistralService.generateSummary(summaryRequest).subscribe({
+            next: (response) => {
+                this.summary = response.summary;
+                this.summaryHtml = this.convertMarkdownToHtml(response.summary);
+                this.isLoading = false;
+                this.cdr.detectChanges();
+            },
+            error: (error) => {
+                console.error('Erreur lors de la génération du résumé:', error);
+                // Fallback vers l'ancienne méthode en cas d'erreur
+                console.log('Tentative avec l\'ancienne méthode...');
+                this.generateSummaryWithFallback();
+            }
+        });
+    }
+
+    private generateSummaryWithFallback() {
+        // Méthode de secours utilisant l'ancienne approche
+        if (this.entries.length <= 5) {
             this.generateSummaryWithSingleCall();
+        } else {
+            this.generateSummaryWithMultipleCalls();
         }
     }
 

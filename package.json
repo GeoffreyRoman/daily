@@ -15,10 +15,19 @@
     "frontend:build": "cd frontend && ng build",
     "frontend:serve": "cd frontend && serve -s dist/frontend -l 4200"
   },
-  "keywords": ["journal", "ai", "angular", "nodejs", "mistral"],
+  "keywords": [
+    "journal",
+    "ai",
+    "angular",
+    "nodejs",
+    "mistral"
+  ],
   "author": "",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
   }
 }

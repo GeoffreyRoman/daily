@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Auth } from './auth';
 
 export interface MistralRequest {
   prompt: string;
@@ -14,25 +13,41 @@ export interface MistralResponse {
   model: string;
 }
 
+export interface SummaryRequest {
+  entries: Array<{
+    date: string;
+    content: string;
+    location_name?: string;
+  }>;
+  startDate: string;
+  endDate: string;
+}
+
+export interface SummaryResponse {
+  summary: string;
+  entries_count: number;
+  period: {
+    start: string;
+    end: string;
+  };
+  model: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class Mistral {
   private apiUrl = 'https://daily-ss.onrender.com/api/mistral';
 
-  constructor(private http: HttpClient, private authService: Auth) { }
+  constructor(private http: HttpClient) { }
 
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-  }
+  // Note: L'intercepteur ajoute automatiquement les headers d'autorisation
 
   generateContent(request: MistralRequest): Observable<MistralResponse> {
-    return this.http.post<MistralResponse>(`${this.apiUrl}/generate`, request, {
-      headers: this.getHeaders()
-    });
+    return this.http.post<MistralResponse>(`${this.apiUrl}/generate`, request);
+  }
+
+  generateSummary(request: SummaryRequest): Observable<SummaryResponse> {
+    return this.http.post<SummaryResponse>(`${this.apiUrl}/summarize`, request);
   }
 }

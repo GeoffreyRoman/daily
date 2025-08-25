@@ -1,11 +1,8 @@
 import { Router, Response } from 'express';
 import pool from '../config/database';
 import { AuthRequest, authenticateToken } from '../middleware/auth';
-import { uploadImages, handleUploadError } from '../middleware/upload';
 import { JournalEntry, EntryImage } from '../models/types';
 import Joi from 'joi';
-import path from 'path';
-import fs from 'fs';
 
 const router = Router();
 
@@ -27,6 +24,13 @@ const searchSchema = Joi.object({
     latitude: Joi.number().min(-90).max(90).optional(),
     longitude: Joi.number().min(-180).max(180).optional(),
     radius: Joi.number().positive().optional()
+});
+
+const imageSchema = Joi.object({
+    original_name: Joi.string().required(),
+    mime_type: Joi.string().pattern(/^image\/(jpeg|jpg|png|gif|webp)$/).required(),
+    file_size: Joi.number().positive().required(),
+    image_data: Joi.string().required() // Base64 de l'image
 });
 
 // Créer une entrée de journal
@@ -74,12 +78,11 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
                         json_agg(
                             json_build_object(
                                 'id', ei.id,
-                                'filename', ei.filename,
                                 'original_name', ei.original_name,
-                                'file_path', ei.file_path,
-                                'file_size', ei.file_size,
                                 'mime_type', ei.mime_type,
-                                'upload_date', ei.upload_date
+                                'file_size', ei.file_size,
+                                'image_data', ei.image_data,
+                                'created_at', ei.created_at
                             )
                         ) FILTER (WHERE ei.id IS NOT NULL), 
                         '[]'
@@ -109,12 +112,11 @@ router.get('/date/:date', authenticateToken, async (req: AuthRequest, res: Respo
                         json_agg(
                             json_build_object(
                                 'id', ei.id,
-                                'filename', ei.filename,
                                 'original_name', ei.original_name,
-                                'file_path', ei.file_path,
-                                'file_size', ei.file_size,
                                 'mime_type', ei.mime_type,
-                                'upload_date', ei.upload_date
+                                'file_size', ei.file_size,
+                                'image_data', ei.image_data,
+                                'created_at', ei.created_at
                             )
                         ) FILTER (WHERE ei.id IS NOT NULL), 
                         '[]'
@@ -244,7 +246,7 @@ router.post('/search', authenticateToken, async (req: AuthRequest, res: Response
             params.push(latitude, longitude, radius);
         }
 
-        query += ' ORDER BY date DESC';
+        query += ' ORDER BY date ASC';
 
         const result = await pool.query(query, params);
         res.json(result.rows);
@@ -254,14 +256,19 @@ router.post('/search', authenticateToken, async (req: AuthRequest, res: Response
     }
 });
 
-// Upload d'images pour une entrée
-router.post('/:id/images', authenticateToken, uploadImages.array('images', 10), handleUploadError, async (req: AuthRequest, res: Response) => {
+// Upload d'images pour une entrée (base64)
+router.post('/:id/images', authenticateToken, async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const files = req.files as Express.Multer.File[];
+        const { images } = req.body; // Array d'objets images avec base64
 
-        if (!files || files.length === 0) {
-            return res.status(400).json({ error: 'Aucun fichier fourni' });
+        if (!images || !Array.isArray(images) || images.length === 0) {
+            return res.status(400).json({ error: 'Aucune image fournie' });
+        }
+
+        // Limiter à 10 images maximum
+        if (images.length > 10) {
+            return res.status(400).json({ error: 'Maximum 10 images par entrée' });
         }
 
         // Vérifier que l'entrée appartient à l'utilisateur
@@ -271,22 +278,30 @@ router.post('/:id/images', authenticateToken, uploadImages.array('images', 10), 
         );
 
         if (entryCheck.rows.length === 0) {
-            // Supprimer les fichiers uploadés si l'entrée n'existe pas
-            files.forEach(file => {
-                fs.unlinkSync(file.path);
-            });
             return res.status(404).json({ error: 'Entrée non trouvée' });
         }
 
-        // Insérer les informations des images en base
+        // Valider et insérer chaque image
         const imageRecords = [];
-        for (const file of files) {
+        for (const image of images) {
+            // Validation de l'image
+            const { error } = imageSchema.validate(image);
+            if (error) {
+                return res.status(400).json({ error: `Image invalide: ${error.details[0].message}` });
+            }
+
+            // Vérifier la taille du base64 (environ 5MB en base64)
+            if (image.image_data.length > 7000000) { // ~5MB en base64
+                return res.status(400).json({ error: `Image trop volumineuse: ${image.original_name}` });
+            }
+
+            // Insérer en base de données
             const result = await pool.query(
                 `INSERT INTO entry_images 
-                 (entry_id, filename, original_name, file_path, file_size, mime_type) 
-                 VALUES ($1, $2, $3, $4, $5, $6) 
+                 (entry_id, original_name, mime_type, file_size, image_data) 
+                 VALUES ($1, $2, $3, $4, $5) 
                  RETURNING *`,
-                [id, file.filename, file.originalname, file.path, file.size, file.mimetype]
+                [id, image.original_name, image.mime_type, image.file_size, image.image_data]
             );
             imageRecords.push(result.rows[0]);
         }
@@ -308,7 +323,7 @@ router.delete('/:entryId/images/:imageId', authenticateToken, async (req: AuthRe
 
         // Vérifier que l'image appartient à une entrée de l'utilisateur
         const result = await pool.query(
-            `SELECT ei.file_path 
+            `SELECT ei.id 
              FROM entry_images ei
              JOIN journal_entries je ON ei.entry_id = je.id
              WHERE ei.id = $1 AND ei.entry_id = $2 AND je.user_id = $3`,
@@ -319,36 +334,12 @@ router.delete('/:entryId/images/:imageId', authenticateToken, async (req: AuthRe
             return res.status(404).json({ error: 'Image non trouvée' });
         }
 
-        const filePath = result.rows[0].file_path;
-
         // Supprimer l'enregistrement de la base de données
         await pool.query('DELETE FROM entry_images WHERE id = $1', [imageId]);
-
-        // Supprimer le fichier physique
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-        }
 
         res.json({ message: 'Image supprimée avec succès' });
     } catch (error) {
         console.error('Erreur lors de la suppression de l\'image:', error);
-        res.status(500).json({ error: 'Erreur serveur' });
-    }
-});
-
-// Servir les images
-router.get('/images/:filename', (req, res) => {
-    try {
-        const { filename } = req.params;
-        const filePath = path.join(__dirname, '../../uploads/images', filename);
-
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ error: 'Image non trouvée: ' +  __dirname + ' | ' +  filePath});
-        }
-
-        res.sendFile(filePath);
-    } catch (error) {
-        console.error('Erreur lors de la récupération de l\'image:', error);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });

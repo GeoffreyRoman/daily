@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mistralai/mistralai": "^1.7.5",
+    "@google/generative-ai": "^0.24.1",
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
     "@types/pg": "^8.15.5",

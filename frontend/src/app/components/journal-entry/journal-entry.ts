@@ -441,20 +441,51 @@ export class JournalEntry implements OnInit, AfterViewInit {
 
     this.uploadingImages = true;
 
-    this.journalService.uploadImages(this.entry.id, this.selectedFiles).subscribe({
-      next: (response) => {
-        this.uploadedImages.push(...response.images);
-        this.selectedFiles = null;
-        this.fileInput.nativeElement.value = '';
-        this.uploadingImages = false;
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
-        console.error('Erreur lors de l\'upload des images:', error);
-        alert('Erreur lors de l\'upload des images: ' + (error.error?.error || 'Erreur inconnue'));
-        this.uploadingImages = false;
-        this.cdr.markForCheck();
-      }
+    // Convertir les fichiers en base64
+    const promises: Promise<any>[] = [];
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      const file = this.selectedFiles[i];
+      promises.push(this.fileToBase64(file));
+    }
+
+    Promise.all(promises).then(images => {
+      this.journalService.uploadImages(this.entry!.id!, images).subscribe({
+        next: (response) => {
+          this.uploadedImages.push(...response.images);
+          this.selectedFiles = null;
+          this.fileInput.nativeElement.value = '';
+          this.uploadingImages = false;
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Erreur lors de l\'upload des images:', error);
+          alert('Erreur lors de l\'upload des images: ' + (error.error?.error || 'Erreur inconnue'));
+          this.uploadingImages = false;
+          this.cdr.markForCheck();
+        }
+      });
+    }).catch(error => {
+      console.error('Erreur lors de la conversion des images:', error);
+      alert('Erreur lors de la conversion des images');
+      this.uploadingImages = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private fileToBase64(file: File): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1]; // Retirer "data:image/...;base64,"
+        resolve({
+          original_name: file.name,
+          mime_type: file.type,
+          file_size: file.size,
+          image_data: base64
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
   }
 
@@ -475,8 +506,8 @@ export class JournalEntry implements OnInit, AfterViewInit {
     }
   }
 
-  getImageUrl(filename: string): string {
-    return this.journalService.getImageUrl(filename);
+  getImageUrl(image: any): string {
+    return this.journalService.getImageDataUrl(image);
   }
 
   formatFileSize(bytes: number): string {

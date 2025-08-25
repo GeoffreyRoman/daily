@@ -141,8 +141,8 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     @for (image of uploadedImages; track image.id) {
                     <div class="relative group border border-gray-200 rounded-lg overflow-hidden bg-gray-50"
-                        (click)="showImageFullscreen(getImageUrl(image.filename))">
-                        <img [src]="getImageUrl(image.filename)" [alt]="image.original_name"
+                        (click)="showImageFullscreen(getImageUrl(image))">
+                        <img [src]="getImageUrl(image)" [alt]="image.original_name"
                             class="w-full h-32 object-cover group-hover:opacity-75 transition-opacity">
 
                         <!-- Overlay avec informations et bouton de suppression -->

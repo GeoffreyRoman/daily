@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, HostListener, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Auth } from './services/auth';
 
@@ -8,7 +8,7 @@ import { Auth } from './services/auth';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit {
   readonly title = signal('frontend');
   readonly userMenu = signal<boolean>(false);
   readonly activePath = signal<string>('');
@@ -21,6 +21,13 @@ export class App {
     this.router.events.subscribe(() => {
       this.activePath.set(this.router.url.split('?')[0]);
     });
+  }
+
+  ngOnInit() {
+    // Vérifier l'authentification au démarrage
+    if (!this.auth.isAuthenticated() && !this.isAuthRoute()) {
+      this.router.navigate(['/login']);
+    }
   }
 
   go(path: string) {
@@ -42,4 +49,14 @@ export class App {
 
   toggleUserMenu() { this.userMenu.set(!this.userMenu()); }
   closeUserMenu() { this.userMenu.set(false); }
+
+  // Fermer le menu utilisateur en cliquant ailleurs
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    const userMenuContainer = target.closest('.user-menu-container');
+    if (!userMenuContainer && this.userMenu()) {
+      this.closeUserMenu();
+    }
+  }
 }

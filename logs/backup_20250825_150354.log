@@ -1,0 +1,4 @@
+Début de la sauvegarde de la base de données - Lun 25 aoû 2025 15:03:54 CEST
+pg_dump: error: server version: 16.6; pg_dump version: 14.18 (Homebrew)
+pg_dump: error: aborting because of server version mismatch
+Erreur lors de la sauvegarde

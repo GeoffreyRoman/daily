@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 
 import journalRoutes from './routes/journal';
 import authRoutes from './routes/auth';
-import mistralRoutes from './routes/mistral';
+import geminiRoutes from './routes/gemini';
 
 dotenv.config();
 
@@ -21,8 +21,7 @@ app.use(cors({
     credentials: true
 }));
 
-// Servir les fichiers statiques du dossier uploads (images)
-app.use('/uploads', express.static('uploads'));
+// Plus besoin de servir des fichiers statiques car les images sont en base64
 
 // Rate limiting
 const limiter = rateLimit({
@@ -47,7 +46,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/journal', journalRoutes);
-app.use('/api/mistral', mistralRoutes);
+app.use('/api/gemini', geminiRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

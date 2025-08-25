@@ -1,12 +1,16 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
-// Créer le dossier uploads s'il n'existe pas
-const uploadsDir = path.join(__dirname, '../../uploads/images');
+// Créer le dossier uploads dans un répertoire externe au repository
+const uploadsBaseDir = process.env.UPLOADS_DIR || path.join(os.homedir(), 'daily-app-uploads');
+const uploadsDir = path.join(uploadsBaseDir, 'images');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
+
+console.log('📁 Dossier uploads configuré:', uploadsDir);
 
 // Configuration du stockage
 const storage = multer.diskStorage({

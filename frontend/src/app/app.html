@@ -29,7 +29,7 @@
                     class="btn-ghost">Recherche</button>
                 <button (click)="go('/summary')" [class.hidden]="activePath() === '/summary'"
                     class="btn-ghost">Résumé</button>
-                <div class="relative" (mouseleave)="closeUserMenu()">
+                <div class="relative user-menu-container">
                     <button class="icon-btn" (click)="toggleUserMenu()" aria-label="Menu utilisateur">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -37,7 +37,8 @@
                         </svg>
                     </button>
                     @if (userMenu()) {
-                    <div class="absolute right-0 mt-2 w-48 glass-card p-2 animate-scale-in">
+                    <div class="absolute right-0 mt-2 w-48 glass-card p-2 animate-scale-in"
+                        (mouseleave)="closeUserMenu()">
                         <div class="px-3 py-2 text-xs uppercase tracking-wide text-neutral-500">Compte</div>
                         <button class="w-full text-left btn-ghost justify-start px-3"
                             (click)="logout()">Déconnexion</button>

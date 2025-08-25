@@ -8,7 +8,7 @@ export interface JournalEntry {
     location_name?: string;
     latitude?: number;
     longitude?: number;
-    images?: string[]; // URLs des images
+    entry_images?: EntryImage[]; // Images en base64
     created_at?: Date;
     updated_at?: Date;
 }
@@ -16,12 +16,11 @@ export interface JournalEntry {
 export interface EntryImage {
     id?: number;
     entry_id: number;
-    filename: string;
     original_name: string;
-    file_path: string;
-    file_size: number;
     mime_type: string;
-    upload_date?: Date;
+    file_size: number;
+    image_data: string; // Base64 de l'image
+    created_at?: Date;
 }
 
 export interface User {

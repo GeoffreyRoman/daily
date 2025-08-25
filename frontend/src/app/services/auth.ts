@@ -29,7 +29,23 @@ export class Auth {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     if (token && user) {
-      this.currentUserSubject.next(JSON.parse(user));
+      // Vérifier si le token n'est pas expiré
+      if (this.isTokenValid(token)) {
+        this.currentUserSubject.next(JSON.parse(user));
+      } else {
+        // Token expiré, nettoyer le localStorage
+        this.logout();
+      }
+    }
+  }
+
+  private isTokenValid(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      return payload.exp > currentTime;
+    } catch {
+      return false;
     }
   }
 
@@ -54,11 +70,19 @@ export class Auth {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (token && this.isTokenValid(token)) {
+      return token;
+    } else {
+      // Token expiré, nettoyer et retourner null
+      this.logout();
+      return null;
+    }
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    return !!token;
   }
 
   getCurrentUser(): User | null {
