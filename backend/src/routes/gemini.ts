@@ -125,7 +125,7 @@ Ta tâche est de fournir un résumé qui met en lumière :
 - Les moments clés ou les événements marquants
 - Les insights et observations pertinents
 
-Utilise un ton bienveillant et personnel, comme si tu analysais le journal d'un ami. Le résumé doit être informatif mais aussi refleter l'expérience humaine derrière ces entrées.`;
+Le résumé doit être informatif mais aussi refleter l'expérience humaine derrière ces entrées.`;
             
             const prompt = `Résume-moi les entrées de mon journal pour cette période. J'aimerais avoir une vue d'ensemble de ce que j'ai vécu.`;
             const fullPrompt = `${systemPrompt}\n\n${prompt}`;
