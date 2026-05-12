@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, AfterViewInit, ViewChild, Element
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Journal, JournalEntry as JournalEntryType, EntryImage } from '../../services/journal';
-import { Mistral } from '../../services/mistral';
+import { GeminiService } from '../../services/gemini';
 import { Auth } from '../../services/auth';
 import { SearchStateService } from '../../services/search-state';
 import * as L from 'leaflet';
@@ -59,7 +59,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private journalService: Journal,
-    private mistralService: Mistral,
+    private geminiService: GeminiService,
     private authService: Auth,
     private cdr: ChangeDetectorRef,
     private searchStateService: SearchStateService
@@ -129,7 +129,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
     if (!this.prompt.trim()) return;
 
     this.aiGenerating = true;
-    this.mistralService.generateContent({
+    this.geminiService.generateContent({
       prompt: this.prompt,
       context: `Date: ${this.currentDate}`
     }).subscribe({
