@@ -39,9 +39,7 @@ router.post('/generate', authenticateToken, async (req: AuthRequest, res: Respon
 
         try {
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
-
-            // Construire le prompt système pour le journal
+            const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite"});
             let systemPrompt = `Tu es un assistant qui aide à rédiger des entrées de journal personnel. 
 Tu dois créer un texte authentique et personnel basé sur le prompt de l'utilisateur. 
 Le texte doit être écrit à la première personne, comme si c'était l'utilisateur qui écrivait.
@@ -65,7 +63,7 @@ Garde un ton naturel et personnel, évite d'être trop formel. La réponse doit 
             res.json({
                 generated_content: generatedContent,
                 prompt: prompt,
-                model: 'gemini-2.5-flash'
+                model: 'gemini-3.1-flash-lite'
             });
 
         } catch (geminiError: any) {
@@ -99,7 +97,7 @@ router.post('/summarize', authenticateToken, async (req: AuthRequest, res: Respo
 
         try {
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
+            const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite"});
 
             // Formater les entrées pour le contexte
             const formattedEntries = entries.map((entry: any) => {
@@ -146,7 +144,7 @@ Le résumé doit être informatif mais aussi refleter l'expérience humaine derr
                     start: startDate,
                     end: endDate
                 },
-                model: 'gemini-2.5-flash'
+                model: 'gemini-3.1-flash-lite'
             });
 
         } catch (geminiError: any) {
