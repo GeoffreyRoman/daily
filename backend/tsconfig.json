@@ -13,14 +13,6 @@
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
-        "moduleResolution": "node",
-        "baseUrl": "./",
-        "paths": {
-            "*": [
-                "node_modules/*",
-                "src/*"
-            ]
-        }
     },
     "include": [
         "src/**/*"
