@@ -1,9 +1,12 @@
 import { Router, Response } from 'express';
 import { AuthRequest, authenticateToken } from '../middleware/auth';
 import Joi from 'joi';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 const router = Router();
+// Modèle stable et économique pour la rédaction/résumé. Il reste configurable
+// pour pouvoir basculer vers un modèle plus puissant sans modifier le code.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 
 // Schéma de validation pour le prompt
 const promptSchema = Joi.object({
@@ -38,8 +41,7 @@ router.post('/generate', authenticateToken, async (req: AuthRequest, res: Respon
         }
 
         try {
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite"});
+            const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
             let systemPrompt = `Tu es un assistant qui aide à rédiger des entrées de journal personnel. 
 Tu dois créer un texte authentique et personnel basé sur le prompt de l'utilisateur. 
 Le texte doit être écrit à la première personne, comme si c'était l'utilisateur qui écrivait.
@@ -52,9 +54,11 @@ Garde un ton naturel et personnel, évite d'être trop formel. La réponse doit 
 
             const fullPrompt = `${systemPrompt}\n\n${prompt}`;
 
-            const result = await model.generateContent(fullPrompt);
-            const response = await result.response;
-            const generatedContent = response.text();
+            const response = await genAI.models.generateContent({
+                model: GEMINI_MODEL,
+                contents: fullPrompt
+            });
+            const generatedContent = response.text;
 
             if (!generatedContent) {
                 return res.status(500).json({ error: 'Aucun contenu généré par l\'IA' });
@@ -63,14 +67,14 @@ Garde un ton naturel et personnel, évite d'être trop formel. La réponse doit 
             res.json({
                 generated_content: generatedContent,
                 prompt: prompt,
-                model: 'gemini-3.1-flash-lite'
+                model: GEMINI_MODEL
             });
 
         } catch (geminiError: any) {
             console.error('Erreur Gemini AI:', geminiError);
             return res.status(500).json({
                 error: 'Erreur lors de la génération de contenu avec Gemini AI',
-                details: geminiError.message
+                ...(process.env.NODE_ENV !== 'production' && { details: geminiError.message })
             });
         }
 
@@ -96,8 +100,7 @@ router.post('/summarize', authenticateToken, async (req: AuthRequest, res: Respo
         }
 
         try {
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite"});
+            const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
             // Formater les entrées pour le contexte
             const formattedEntries = entries.map((entry: any) => {
@@ -128,9 +131,11 @@ Le résumé doit être informatif mais aussi refleter l'expérience humaine derr
             const prompt = `Résume-moi les entrées de mon journal pour cette période. J'aimerais avoir une vue d'ensemble de ce que j'ai vécu.`;
             const fullPrompt = `${systemPrompt}\n\n${prompt}`;
 
-            const result = await model.generateContent(fullPrompt);
-            const response = await result.response;
-            const generatedSummary = response.text();
+            const response = await genAI.models.generateContent({
+                model: GEMINI_MODEL,
+                contents: fullPrompt
+            });
+            const generatedSummary = response.text;
 
 
             if (!generatedSummary) {
@@ -144,14 +149,14 @@ Le résumé doit être informatif mais aussi refleter l'expérience humaine derr
                     start: startDate,
                     end: endDate
                 },
-                model: 'gemini-3.1-flash-lite'
+                model: GEMINI_MODEL
             });
 
         } catch (geminiError: any) {
             console.error('Erreur Gemini AI pour résumé:', geminiError);
             return res.status(500).json({
                 error: 'Erreur lors de la génération du résumé avec Gemini AI',
-                details: geminiError.message
+                ...(process.env.NODE_ENV !== 'production' && { details: geminiError.message })
             });
         }
 

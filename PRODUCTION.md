@@ -16,7 +16,7 @@ Ce guide vous permet de lancer Daily Journal en production rapidement.
 
 - Node.js 18+
 - PostgreSQL en fonctionnement
-- Clé API Mistral (optionnel)
+- Clé API Gemini (optionnel)
 
 ## 🔧 Configuration Minimale
 

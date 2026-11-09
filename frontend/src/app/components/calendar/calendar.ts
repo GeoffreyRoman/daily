@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { Journal, JournalEntry } from '../../services/journal';
@@ -15,6 +15,7 @@ interface CalendarDay {
   selector: 'app-calendar',
   imports: [],
   templateUrl: './calendar.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './calendar.scss'
 })
 export class Calendar implements OnInit {
@@ -22,6 +23,7 @@ export class Calendar implements OnInit {
   calendarDays: CalendarDay[] = [];
   entries: JournalEntry[] = [];
   loading = false;
+  errorMessage = '';
 
   constructor(
     private journalService: Journal,
@@ -54,6 +56,7 @@ export class Calendar implements OnInit {
       },
       error: (error) => {
         console.error('Erreur lors du chargement des entrées:', error);
+        this.errorMessage = error.error?.error || 'Impossible de charger vos entrées. Vérifiez votre connexion au serveur.';
         this.loading = false;
         this.cdr.markForCheck();
       }
@@ -80,7 +83,7 @@ export class Calendar implements OnInit {
     this.calendarDays = [];
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
-      const dateString = currentDate.toLocaleDateString('en-CA');
+      const dateString = this.formatDate(currentDate);
       const entry = this.entries.find(e => {
         return this.formatDate(new Date(e.date)) === dateString;
       });
@@ -97,7 +100,12 @@ export class Calendar implements OnInit {
   }
 
   formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    // Les dates du journal sont des dates civiles, pas des instants UTC.
+    // Utiliser toISOString() décalait les entrées d'un jour en Europe.
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   previousMonth() {
@@ -118,7 +126,7 @@ export class Calendar implements OnInit {
   }
 
   onDayClick(day: CalendarDay) {
-    this.router.navigate(['/entry', day.date.toLocaleDateString('en-CA')]);
+    this.router.navigate(['/entry', this.formatDate(day.date)]);
   }
 
   logout() {

@@ -13,14 +13,14 @@
     "backend:start": "cd backend && npm start",
     "frontend:dev": "cd frontend && ng serve",
     "frontend:build": "cd frontend && ng build",
-    "frontend:serve": "cd frontend && serve -s dist/frontend -l 4200"
+    "frontend:serve": "cd frontend && serve -s dist/frontend/browser -l 4200"
   },
   "keywords": [
     "journal",
     "ai",
     "angular",
     "nodejs",
-    "mistral"
+    "gemini"
   ],
   "author": "",
   "license": "MIT",
@@ -28,6 +28,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1"
+    "@google/genai": "^3.0.0"
   }
 }

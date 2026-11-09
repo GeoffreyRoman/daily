@@ -1,14 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api';
+
+export type Mood = 'great' | 'good' | 'okay' | 'bad' | 'awful';
 
 export interface JournalEntry {
   id?: number;
   user_id?: number;
   date: string;
   content: string;
-  ai_generated?: boolean;
   prompt?: string;
+  ai_generated?: boolean;
+  mood?: Mood | null;
+  tags?: string[];
+  is_favorite?: boolean;
   location_name?: string;
   latitude?: number;
   longitude?: number;
@@ -41,7 +47,7 @@ export interface SearchRequest {
   providedIn: 'root'
 })
 export class Journal {
-  private apiUrl = 'https://daily-ss.onrender.com/api/journal';
+  private apiUrl = `${API_BASE_URL}/journal`;
 
   constructor(private http: HttpClient) { }
 

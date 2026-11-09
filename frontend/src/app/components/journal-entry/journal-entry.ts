@@ -1,17 +1,18 @@
-import { ChangeDetectorRef, Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Journal, JournalEntry as JournalEntryType, EntryImage } from '../../services/journal';
+import { Journal, JournalEntry as JournalEntryType, EntryImage, Mood } from '../../services/journal';
 import { GeminiService } from '../../services/gemini';
 import { Auth } from '../../services/auth';
 import { SearchStateService } from '../../services/search-state';
-import * as L from 'leaflet';
+import type * as Leaflet from 'leaflet';
 
 @Component({
   selector: 'app-journal-entry',
   imports: [FormsModule],
   templateUrl: './journal-entry.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './journal-entry.scss'
 })
 export class JournalEntry implements OnInit, AfterViewInit {
@@ -24,6 +25,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
   isNew = true;
   loading = false;
   saving = false;
+  errorMessage = '';
 
   // Form fields
   content = '';
@@ -31,6 +33,9 @@ export class JournalEntry implements OnInit, AfterViewInit {
   locationName = '';
   latitude: number | null = null;
   longitude: number | null = null;
+  mood: Mood | null = null;
+  tagsText = '';
+  isFavorite = false;
 
   // Images
   selectedFiles: FileList | null = null;
@@ -44,12 +49,13 @@ export class JournalEntry implements OnInit, AfterViewInit {
   fromSearch = false;
 
   // Map
-  private map: L.Map | null = null;
-  private marker: L.Marker | null = null;
+  private leaflet: typeof import('leaflet') | null = null;
+  private map: Leaflet.Map | null = null;
+  private marker: Leaflet.Marker | null = null;
 
   // Map picker
-  private mapPicker: L.Map | null = null;
-  private pickerMarker: L.Marker | null = null;
+  private mapPicker: Leaflet.Map | null = null;
+  private pickerMarker: Leaflet.Marker | null = null;
 
   // Image fullscreen mode
   isImageFullscreen = false;
@@ -96,6 +102,9 @@ export class JournalEntry implements OnInit, AfterViewInit {
         this.isNew = false;
         this.content = entry.content;
         this.prompt = entry.prompt || '';
+        this.mood = entry.mood || null;
+        this.tagsText = (entry.tags || []).join(', ');
+        this.isFavorite = !!entry.is_favorite;
         this.locationName = entry.location_name || '';
         this.latitude = entry.latitude ? Number(entry.latitude) : null;
         this.longitude = entry.longitude ? Number(entry.longitude) : null;
@@ -135,13 +144,14 @@ export class JournalEntry implements OnInit, AfterViewInit {
     }).subscribe({
       next: (response) => {
         this.content = response.generated_content;
-        this.aiGenerating = true;
+        this.aiGenerating = false;
         this.showAiAssistant = false;
         this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Erreur lors de la génération:', error);
         this.aiGenerating = false;
+        this.errorMessage = error.error?.error || 'La génération IA a échoué. Vérifiez votre connexion et réessayez.';
         this.cdr.markForCheck();
       }
     });
@@ -192,10 +202,15 @@ export class JournalEntry implements OnInit, AfterViewInit {
     if (!this.content.trim()) return;
 
     this.saving = true;
+    this.errorMessage = '';
     const entryData = {
       date: this.currentDate,
       content: this.content,
+      prompt: this.prompt || undefined,
       ai_generated: this.aiGenerating,
+      mood: this.mood,
+      tags: this.tagsText.split(',').map(tag => tag.trim()).filter(Boolean),
+      is_favorite: this.isFavorite,
       location_name: this.locationName || undefined,
       latitude: this.latitude || undefined,
       longitude: this.longitude || undefined
@@ -213,6 +228,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Erreur lors de la sauvegarde:', error);
+        this.errorMessage = error.error?.error || 'Impossible de sauvegarder l’entrée. Vérifiez la connexion au serveur.';
         this.saving = false;
         this.cdr.markForCheck();
       }
@@ -259,7 +275,12 @@ export class JournalEntry implements OnInit, AfterViewInit {
     });
   }
 
-  initializeMap() {
+  private async loadLeaflet() {
+    this.leaflet ??= await import('leaflet');
+    return this.leaflet;
+  }
+
+  async initializeMap() {
     if (!this.latitude || !this.longitude || !this.mapContainer) {
       return;
     }
@@ -270,21 +291,22 @@ export class JournalEntry implements OnInit, AfterViewInit {
     }
 
     try {
+      const leaflet = await this.loadLeaflet();
       // Token Mapbox
       const accessToken = 'pk.eyJ1IjoiZ2VvZmZyZXktMyIsImEiOiJjam1oaGt4anYxYW53M3V0ODBrY2ptY2wzIn0.m13RSCPj-ck2-ynQ2M2HnA';
 
       // Créer la carte
-      this.map = L.map(this.mapContainer.nativeElement).setView([this.latitude, this.longitude], 15);
+      this.map = leaflet.map(this.mapContainer.nativeElement).setView([this.latitude, this.longitude], 15);
 
       // Ajouter la couche de tuiles Mapbox
-      L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${accessToken}`, {
+      leaflet.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${accessToken}`, {
         attribution: '© <a href="https://www.mapbox.com/">Mapbox</a> © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
         tileSize: 512,
         zoomOffset: -1
       }).addTo(this.map);
 
       // Créer l'icône personnalisée pour le marqueur
-      const customIcon = L.icon({
+      const customIcon = leaflet.icon({
         iconUrl: 'data:image/svg+xml;base64,' + btoa(`
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#dc2626" width="24" height="24">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -296,7 +318,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
       });
 
       // Ajouter le marqueur
-      this.marker = L.marker([this.latitude, this.longitude], { icon: customIcon })
+      this.marker = leaflet.marker([this.latitude, this.longitude], { icon: customIcon })
         .addTo(this.map)
         .bindPopup(this.locationName || `${this.latitude}, ${this.longitude}`)
         .openPopup();
@@ -327,7 +349,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
     }
   }
 
-  initializeMapPicker() {
+  async initializeMapPicker() {
     if (!this.mapPickerContainer) {
       return;
     }
@@ -336,6 +358,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
     this.destroyMapPicker();
 
     try {
+      const leaflet = await this.loadLeaflet();
       // Token Mapbox
       const accessToken = 'pk.eyJ1IjoiZ2VvZmZyZXktMyIsImEiOiJjam1oaGt4anYxYW53M3V0ODBrY2ptY2wzIn0.m13RSCPj-ck2-ynQ2M2HnA';
 
@@ -344,17 +367,17 @@ export class JournalEntry implements OnInit, AfterViewInit {
       const defaultLng = this.longitude || 2.3522;
 
       // Créer la carte
-      this.mapPicker = L.map(this.mapPickerContainer.nativeElement).setView([defaultLat, defaultLng], 13);
+      this.mapPicker = leaflet.map(this.mapPickerContainer.nativeElement).setView([defaultLat, defaultLng], 13);
 
       // Ajouter la couche de tuiles Mapbox
-      L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${accessToken}`, {
+      leaflet.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${accessToken}`, {
         attribution: '© <a href="https://www.mapbox.com/">Mapbox</a> © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
         tileSize: 512,
         zoomOffset: -1
       }).addTo(this.mapPicker);
 
       // Créer l'icône personnalisée pour le marqueur
-      const customIcon = L.icon({
+      const customIcon = leaflet.icon({
         iconUrl: 'data:image/svg+xml;base64,' + btoa(`
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6" width="24" height="24">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -367,13 +390,13 @@ export class JournalEntry implements OnInit, AfterViewInit {
 
       // Ajouter un marqueur s'il y a déjà une position
       if (this.latitude && this.longitude) {
-        this.pickerMarker = L.marker([this.latitude, this.longitude], { icon: customIcon })
+        this.pickerMarker = leaflet.marker([this.latitude, this.longitude], { icon: customIcon })
           .addTo(this.mapPicker)
           .bindPopup('Position actuelle');
       }
 
       // Gérer les clics sur la carte
-      this.mapPicker.on('click', (e: L.LeafletMouseEvent) => {
+      this.mapPicker.on('click', (e: Leaflet.LeafletMouseEvent) => {
         const { lat, lng } = e.latlng;
 
         // Supprimer le marqueur existant
@@ -382,7 +405,7 @@ export class JournalEntry implements OnInit, AfterViewInit {
         }
 
         // Ajouter un nouveau marqueur
-        this.pickerMarker = L.marker([lat, lng], { icon: customIcon })
+        this.pickerMarker = leaflet.marker([lat, lng], { icon: customIcon })
           .addTo(this.mapPicker!)
           .bindPopup('Nouvelle position sélectionnée')
           .openPopup();

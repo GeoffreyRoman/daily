@@ -16,9 +16,31 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares de sécurité
 app.use(helmet());
+
+// Le navigateur web et la WebView Capacitor n'ont pas la même origine.
+// La liste peut être remplacée par CORS_ORIGINS en production.
+const allowedOrigins = (process.env.CORS_ORIGINS || [
+    'https://daily-note-cs.onrender.com',
+    'http://localhost:4200',
+    'http://localhost',
+    'https://localhost',
+    'capacitor://localhost'
+].join(','))
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' ? 'https://daily-note-cs.onrender.com' : 'https://daily-note-cs.onrender.com',
-    credentials: true
+    origin: (origin, callback) => {
+        // Les requêtes natives Capacitor peuvent ne pas fournir d'en-tête Origin.
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error(`Origin CORS non autorisée: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Plus besoin de servir des fichiers statiques car les images sont en base64

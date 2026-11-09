@@ -5,7 +5,7 @@ Une application web moderne pour tenir un journal quotidien avec intégration de
 ## 🚀 Fonctionnalités
 
 - **Journal quotidien** : Écrivez vos pensées et expériences quotidiennes
-- **IA Intégrée** : Utilisez Mistral AI pour générer du contenu à partir de prompts
+- **IA Intégrée** : Utilisez Gemini pour générer du contenu à partir de prompts
 - **Calendrier interactif** : Naviguez facilement entre les dates
 - **Géolocalisation** : Ajoutez des lieux à vos entrées avec cartes OpenStreetMap
 - **Recherche avancée** : Recherche par mots-clés, dates, ou zones géographiques
@@ -14,7 +14,7 @@ Une application web moderne pour tenir un journal quotidien avec intégration de
 ## 🛠 Technologies
 
 ### Frontend
-- **Angular 18** avec architecture zoneless
+- **Angular 20** avec architecture zoneless
 - **TailwindCSS** pour le styling
 - **Leaflet** pour les cartes interactives
 - **TypeScript** pour le typage statique
@@ -23,14 +23,14 @@ Une application web moderne pour tenir un journal quotidien avec intégration de
 - **Node.js** avec Express
 - **TypeScript** pour le backend
 - **PostgreSQL** pour la base de données
-- **Mistral AI** pour la génération de contenu
+- **Gemini** pour la génération de contenu
 - **JWT** pour l'authentification
 
 ## 📋 Prérequis
 
 - Node.js 18+
 - PostgreSQL 12+
-- Clé API Mistral AI
+- Clé API Gemini
 
 ## 🔧 Installation
 
@@ -64,7 +64,8 @@ cp .env.example .env
 Modifiez les variables d'environnement dans `.env` :
 - `DB_*` : Paramètres PostgreSQL
 - `JWT_SECRET` : Clé secrète pour JWT
-- `MISTRAL_API_KEY` : Votre clé API Mistral AI
+- `GEMINI_API_KEY` : Votre clé API Gemini
+- `GEMINI_MODEL` : Modèle utilisé (par défaut `gemini-3.5-flash-lite`)
 
 ### 3. Configuration Base de Données
 
@@ -88,6 +89,19 @@ npm install
 ```
 
 ## 🚀 Démarrage
+
+### Générer l'APK Android
+
+Depuis PowerShell :
+
+```powershell
+cd frontend
+npm run android:sync
+cd android
+.\gradlew.bat assembleDebug
+```
+
+L'APK debug sera disponible dans `frontend/android/app/build/outputs/apk/debug/app-debug.apk`.
 
 ### Développement (recommandé)
 
@@ -176,7 +190,7 @@ daily-journal/
 - `POST /api/journal/search` - Recherche
 
 ### IA
-- `POST /api/mistral/generate` - Générer du contenu avec Mistral AI
+- `POST /api/gemini/generate` - Générer du contenu avec Gemini
 
 ## 📜 Scripts Disponibles
 
@@ -241,7 +255,7 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 ## 🐛 Problèmes Connus
 
 - Assurez-vous que PostgreSQL est démarré avant de lancer le backend
-- La clé API Mistral AI est requise pour les fonctionnalités IA
+- La clé API Gemini est requise pour les fonctionnalités IA
 - L'application nécessite une connexion internet pour les cartes
 
 ## 📞 Support

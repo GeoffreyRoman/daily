@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,6 +15,7 @@ import * as L from 'leaflet';
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './summary.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./summary.scss']
 })
 export class Summary implements OnInit, AfterViewInit {

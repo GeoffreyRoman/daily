@@ -1,11 +1,14 @@
-import { Component, computed, signal, HostListener, OnInit } from '@angular/core';
+import { Component, computed, signal, HostListener, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Auth } from './services/auth';
+import { ThemeService } from './services/theme';
+import { BiometricService } from './services/biometric';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
@@ -15,7 +18,7 @@ export class App implements OnInit {
   readonly currentYear = new Date().getFullYear();
   readonly isAuthRoute = computed(() => this.activePath() === '/login');
 
-  constructor(private router: Router, private auth: Auth) {
+  constructor(private router: Router, private auth: Auth, readonly theme: ThemeService, readonly biometric: BiometricService) {
     this.activePath.set(this.router.url.split('?')[0]);
     // Listen to route changes
     this.router.events.subscribe(() => {
@@ -28,6 +31,7 @@ export class App implements OnInit {
     if (!this.auth.isAuthenticated() && !this.isAuthRoute()) {
       this.router.navigate(['/login']);
     }
+    if (this.biometric.enabled()) this.biometric.lock();
   }
 
   go(path: string) {
@@ -48,6 +52,12 @@ export class App implements OnInit {
   }
 
   toggleUserMenu() { this.userMenu.set(!this.userMenu()); }
+  toggleTheme() { this.theme.toggle(); }
+  async toggleBiometric() {
+    if (this.biometric.enabled()) this.biometric.disable();
+    else await this.biometric.enable();
+  }
+  async unlock() { await this.biometric.unlock(); }
   closeUserMenu() { this.userMenu.set(false); }
 
   // Fermer le menu utilisateur en cliquant ailleurs

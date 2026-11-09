@@ -45,13 +45,14 @@ DB_PASSWORD=votre_mot_de_passe
 
 JWT_SECRET=votre_cle_secrete_jwt_tres_longue_et_securisee
 
-MISTRAL_API_KEY=votre_cle_api_mistral
+GEMINI_API_KEY=votre_cle_api_gemini
+GEMINI_MODEL=gemini-3.5-flash-lite
 NODE_ENV=development
 PORT=3000
 ```
 
-### 3. Obtenir une clé API Mistral
-1. Allez sur https://console.mistral.ai/
+### 3. Obtenir une clé API Gemini
+1. Allez sur https://aistudio.google.com/apikey
 2. Créez un compte gratuit
 3. Générez une clé API
 4. Ajoutez-la dans votre fichier `.env`

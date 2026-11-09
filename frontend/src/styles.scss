@@ -383,3 +383,41 @@ h4 {
     outline: none;
     box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px #fff;
 }
+
+button,
+input,
+textarea,
+select { min-height: 2.75rem; }
+
+@media (max-width: 640px) {
+    .app-header { padding-top: env(safe-area-inset-top); }
+    .app-shell main { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+    .calendar-day { min-height: 4.5rem; padding: .5rem; }
+}
+
+.dark-theme {
+    background: #0f172a;
+    color: #e5e7eb;
+}
+
+.dark-theme .app-header,
+.dark-theme main,
+.dark-theme .glass-card,
+.dark-theme .surface {
+    background-color: #111827;
+    color: #e5e7eb;
+    border-color: #334155;
+}
+
+.dark-theme main { background: #0f172a; }
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme select { background: #1f2937; color: #f9fafb; border-color: #475569; }
+.dark-theme .text-gray-900,
+.dark-theme .text-neutral-900,
+.dark-theme .text-gray-700,
+.dark-theme .text-neutral-700 { color: #f3f4f6; }
+.dark-theme .text-gray-600,
+.dark-theme .text-neutral-600,
+.dark-theme .text-gray-500,
+.dark-theme .text-neutral-500 { color: #cbd5e1; }

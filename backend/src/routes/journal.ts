@@ -10,7 +10,11 @@ const router = Router();
 const journalEntrySchema = Joi.object({
     date: Joi.date().required(),
     content: Joi.string().required(),
+    prompt: Joi.string().allow('').optional(),
     ai_generated: Joi.boolean().default(false),
+    mood: Joi.string().valid('great', 'good', 'okay', 'bad', 'awful').allow(null, '').optional(),
+    tags: Joi.array().items(Joi.string().trim().max(40)).max(20).default([]),
+    is_favorite: Joi.boolean().default(false),
     location_name: Joi.string().optional(),
     latitude: Joi.number().min(-90).max(90).optional(),
     longitude: Joi.number().min(-180).max(180).optional(),
@@ -44,7 +48,11 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
         const {
             date,
             content,
+            prompt = '',
             ai_generated = false,
+            mood = null,
+            tags = [],
+            is_favorite = false,
             location_name,
             latitude,
             longitude,
@@ -53,10 +61,10 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 
         const result = await pool.query(
             `INSERT INTO journal_entries 
-       (user_id, date, content, ai_generated, location_name, latitude, longitude, images) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+       (user_id, date, content, prompt, ai_generated, mood, tags, is_favorite, location_name, latitude, longitude, images)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        RETURNING *`,
-            [req.user.id, date, content, ai_generated, location_name, latitude, longitude, images]
+            [req.user.id, date, content, prompt, ai_generated, mood, tags, is_favorite, location_name, latitude, longitude, images]
         );
 
         res.status(201).json({
@@ -149,7 +157,11 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
         const {
             date,
             content,
+            prompt = '',
             ai_generated,
+            mood = null,
+            tags = [],
+            is_favorite = false,
             location_name,
             latitude,
             longitude,
@@ -158,10 +170,10 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
 
         const result = await pool.query(
             `UPDATE journal_entries 
-       SET date = $1, content = $2, ai_generated = $3, location_name = $4, latitude = $5, longitude = $6, images = $7, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $8 AND user_id = $9 
+       SET date = $1, content = $2, prompt = $3, ai_generated = $4, mood = $5, tags = $6, is_favorite = $7, location_name = $8, latitude = $9, longitude = $10, images = $11, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $12 AND user_id = $13
        RETURNING *`,
-            [date, content, ai_generated, location_name, latitude, longitude, images, id, req.user.id]
+            [date, content, prompt, ai_generated, mood, tags, is_favorite, location_name, latitude, longitude, images, id, req.user.id]
         );
 
         if (result.rows.length === 0) {

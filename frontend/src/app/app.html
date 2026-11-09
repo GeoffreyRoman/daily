@@ -1,4 +1,4 @@
-<div class="app-shell" [class.theme-transition]="true">
+<div class="app-shell" [class.theme-transition]="true" [class.dark-theme]="theme.dark()">
     <!-- Header global (masqué sur la page login) -->
     @if (!isAuthRoute()) {
     <header class="app-header">
@@ -42,6 +42,14 @@
                         <div class="px-3 py-2 text-xs uppercase tracking-wide text-neutral-500">Compte</div>
                         <button class="w-full text-left btn-ghost justify-start px-3"
                             (click)="logout()">Déconnexion</button>
+                        <button class="w-full text-left btn-ghost justify-start px-3"
+                            (click)="toggleTheme()">{{ theme.dark() ? '☀️ Mode clair' : '🌙 Mode sombre' }}</button>
+                        <button class="w-full text-left btn-ghost justify-start px-3"
+                            (click)="toggleBiometric()">{{ biometric.enabled() ? '🔓 Désactiver biométrie' : '🔐 Activer biométrie' }}</button>
+                        @if (biometric.enabled()) {
+                        <button class="w-full text-left btn-ghost justify-start px-3"
+                            (click)="biometric.lock(); closeUserMenu()">🔒 Verrouiller</button>
+                        }
                     </div>
                     }
                 </div>
@@ -70,5 +78,16 @@
     <footer class="py-6 text-center text-xs text-neutral-500">
         © {{ currentYear }} Daily Journal — Vos souvenirs, enrichis par l'IA.
     </footer>
+    }
+
+    @if (biometric.locked() && !isAuthRoute()) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/90 p-6 text-white">
+        <div class="text-center max-w-sm">
+            <div class="text-5xl mb-4">🔐</div>
+            <h2 class="text-2xl font-semibold mb-2">Journal verrouillé</h2>
+            <p class="text-white/70 mb-6">Utilisez votre empreinte ou la biométrie de votre appareil.</p>
+            <button class="btn-primary" (click)="unlock()">Déverrouiller</button>
+        </div>
+    </div>
     }
 </div>

@@ -34,7 +34,7 @@ BACKEND_PID=$!
 cd ..
 
 echo "🌐 Démarrage du frontend..."
-cd frontend/dist/frontend
+cd frontend/dist/frontend/browser
 serve -s . -l 4200 > ../../../logs/frontend-prod.log 2>&1 &
 FRONTEND_PID=$!
 cd ../../..

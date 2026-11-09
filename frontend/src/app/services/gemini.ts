@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api';
 
 export interface GeminiRequest {
   prompt: string;
@@ -37,7 +38,7 @@ export interface SummaryResponse {
   providedIn: 'root'
 })
 export class GeminiService {
-  private apiUrl = 'https://daily-ss.onrender.com/api/gemini';
+  private apiUrl = `${API_BASE_URL}/gemini`;
 
   constructor(private http: HttpClient) { }
 

@@ -1,4 +1,9 @@
 <div class="space-y-8 fade-in">
+  @if (errorMessage) {
+  <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+    {{ errorMessage }}
+  </div>
+  }
   <section class="space-y-2">
     <h1 class="text-3xl font-semibold tracking-tight flex items-center gap-3">
       <span class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-white font-bold">📅</span>
@@ -54,7 +59,7 @@
 
         <!-- Calendar Grid -->
         <div class="grid grid-cols-7 gap-px bg-neutral-200">
-          @for (day of calendarDays; track day) {
+          @for (day of calendarDays; track day.date.getTime()) {
           <div (click)="onDayClick(day)"
             [class]="'calendar-day p-2 h-24 cursor-pointer relative transition-colors ' + 
                          (!day.isCurrentMonth ? 'other-month text-gray-400 bg-gray-50' : 
@@ -67,7 +72,10 @@
                   {{ day.date.getDate() }}
                 </span>
                 @if (day.hasEntry) {
-                <div class="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                <div class="flex items-center gap-1">
+                  @if (day.entry?.is_favorite) { <span aria-label="Favori">⭐</span> }
+                  <div class="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                </div>
                 }
               </div>
               <div class="flex-1 mt-1">

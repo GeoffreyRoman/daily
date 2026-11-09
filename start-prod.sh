@@ -103,7 +103,8 @@ if [ ! -f "backend/.env" ]; then
 NODE_ENV=production
 PORT=3000
 JWT_SECRET=votre-jwt-secret-super-securise-changez-moi
-MISTRAL_API_KEY=votre-cle-mistral-api
+GEMINI_API_KEY=votre-cle-gemini-api
+GEMINI_MODEL=gemini-3.5-flash-lite
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=daily_journal
@@ -138,19 +139,19 @@ log "Démarrage du serveur web pour le frontend..."
 
 # Vérifier si 'serve' est installé globalement
 if command -v serve >/dev/null 2>&1; then
-    cd frontend/dist/frontend
+    cd frontend/dist/frontend/browser
     serve -s . -l 4200 > ../../../logs/frontend.log 2>&1 &
     FRONTEND_PID=$!
     cd ../../..
     log "Frontend servi sur http://localhost:4200 avec 'serve'"
 elif command -v python3 >/dev/null 2>&1; then
-    cd frontend/dist/frontend
+    cd frontend/dist/frontend/browser
     python3 -m http.server 4200 > ../../../logs/frontend.log 2>&1 &
     FRONTEND_PID=$!
     cd ../../..
     log "Frontend servi sur http://localhost:4200 avec Python"
 elif command -v python >/dev/null 2>&1; then
-    cd frontend/dist/frontend
+    cd frontend/dist/frontend/browser
     python -m SimpleHTTPServer 4200 > ../../../logs/frontend.log 2>&1 &
     FRONTEND_PID=$!
     cd ../../..
